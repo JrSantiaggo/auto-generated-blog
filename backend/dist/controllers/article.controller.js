@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.generateArticleController = exports.getArticleById = exports.getAllArticles = void 0;
 const article_service_1 = require("../services/article.service");
-const openai_service_1 = require("../services/openai.service");
+const ai_service_1 = require("../services/ai.service");
 const HTTP_STATUS = {
     OK: 200,
     CREATED: 201,
@@ -36,7 +36,7 @@ exports.getArticleById = getArticleById;
 const generateArticleController = async (req, res) => {
     try {
         const { topic, style, paragraphs, title } = req.body;
-        const generatedContent = await (0, openai_service_1.generateArticle)({
+        const generatedContent = await (0, ai_service_1.generateArticle)({
             topic,
             style,
             paragraphs,
@@ -47,9 +47,9 @@ const generateArticleController = async (req, res) => {
     }
     catch (error) {
         const errorMessage = error instanceof Error ? error.message : "Error generating article";
-        if (errorMessage.includes("OPENAI_API_KEY")) {
+        if (errorMessage.includes("GROQ_API_KEY")) {
             res.status(HTTP_STATUS.BAD_REQUEST).json({
-                error: "OpenAI API configuration not found",
+                error: "Groq API configuration not found",
             });
             return;
         }

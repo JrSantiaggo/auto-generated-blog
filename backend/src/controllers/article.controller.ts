@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { articleService } from "../services/article.service";
-import { generateArticle } from "../services/openai.service";
+import { generateArticle } from "../services/ai.service";
 
 const HTTP_STATUS = {
   OK: 200,
@@ -65,9 +65,9 @@ export const generateArticleController = async (
     const errorMessage =
       error instanceof Error ? error.message : "Error generating article";
 
-    if (errorMessage.includes("OPENAI_API_KEY")) {
+    if (errorMessage.includes("GROQ_API_KEY")) {
       res.status(HTTP_STATUS.BAD_REQUEST).json({
-        error: "OpenAI API configuration not found",
+        error: "Groq API configuration not found",
       });
       return;
     }

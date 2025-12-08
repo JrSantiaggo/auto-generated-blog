@@ -3,15 +3,18 @@ import { useFetch } from "../hooks/useFetch";
 import type { Article } from "../types/article.types";
 import { ArticleList } from "../components/ArticleList";
 import { ArticleDetail } from "../components/ArticleDetail";
+import { apiService } from "../services/api.service";
 
 export function ArticlesPage() {
   const [selectedArticleId, setSelectedArticleId] = useState<number | null>(
     null
   );
+  const [isGenerating, setIsGenerating] = useState(false);
   const {
     data: articles,
     isLoading: articlesLoading,
     error: articlesError,
+    refetch: refetchArticles,
   } = useFetch<Article[]>("/articles");
   const {
     data: selectedArticle,
@@ -27,6 +30,34 @@ export function ArticlesPage() {
 
   const handleBack = () => {
     setSelectedArticleId(null);
+  };
+
+  const handleGenerateArticle = async () => {
+    setIsGenerating(true);
+    try {
+      const newArticle = await apiService.post<Article>("/articles/generate", {
+        topic: "technology",
+        style: "light and informal",
+        paragraphs: 3,
+      });
+
+      // Refresh articles list
+      await refetchArticles();
+
+      // Automatically open the newly generated article
+      if (newArticle) {
+        setSelectedArticleId(newArticle.id);
+      }
+    } catch (error) {
+      console.error("Error generating article:", error);
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Failed to generate article. Please try again."
+      );
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   if (articlesError) {
@@ -65,11 +96,33 @@ export function ArticlesPage() {
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-4xl mx-auto">
         {selectedArticleId === null ? (
-          <ArticleList
-            articles={articles || []}
-            onArticleClick={handleArticleClick}
-            loading={articlesLoading}
-          />
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h1 className="text-3xl font-bold text-gray-800">Blog</h1>
+              <button
+                onClick={handleGenerateArticle}
+                disabled={isGenerating || articlesLoading}
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {isGenerating ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    <span>Generating...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>+</span>
+                    <span>Generate New Article</span>
+                  </>
+                )}
+              </button>
+            </div>
+            <ArticleList
+              articles={articles || []}
+              onArticleClick={handleArticleClick}
+              loading={articlesLoading}
+            />
+          </div>
         ) : (
           <ArticleDetail
             article={selectedArticle}

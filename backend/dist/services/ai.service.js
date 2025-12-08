@@ -1,32 +1,29 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.generateArticle = generateArticle;
-const openai_1 = __importDefault(require("openai"));
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-if (!OPENAI_API_KEY) {
-    console.warn("⚠️  OPENAI_API_KEY not configured. Article generation will not work.");
+const groq_sdk_1 = require("groq-sdk");
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
+if (!GROQ_API_KEY) {
+    console.warn("⚠️  GROQ_API_KEY not configured. Article generation will not work.");
 }
 let client = null;
-function getOpenAIClient() {
-    if (!OPENAI_API_KEY) {
-        throw new Error("OPENAI_API_KEY not configured");
+function getGroqClient() {
+    if (!GROQ_API_KEY) {
+        throw new Error("GROQ_API_KEY not configured");
     }
     if (!client) {
-        client = new openai_1.default({
-            apiKey: OPENAI_API_KEY,
+        client = new groq_sdk_1.Groq({
+            apiKey: GROQ_API_KEY,
         });
     }
     return client;
 }
 async function generateArticle(request = {}) {
-    const openAIClient = getOpenAIClient();
+    const groqClient = getGroqClient();
     const { topic = "technology", style = "light and informal", paragraphs = 3, } = request;
     const userPrompt = `Write an article with ${paragraphs} paragraphs about ${topic}, ${style} style.`;
-    const completion = await openAIClient.chat.completions.create({
-        model: "gpt-4o-mini",
+    const completion = await groqClient.chat.completions.create({
+        model: "llama-3.3-70b-versatile",
         messages: [
             {
                 role: "system",

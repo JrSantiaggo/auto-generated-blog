@@ -29,7 +29,6 @@ export function ArticleList({
 
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">Articles</h2>
       <ul className="space-y-3">
         {articles.map((article) => (
           <li key={article.id}>
@@ -47,4 +46,3 @@ export function ArticleList({
     </div>
   );
 }
-

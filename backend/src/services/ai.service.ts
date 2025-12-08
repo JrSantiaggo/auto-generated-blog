@@ -1,23 +1,23 @@
-import OpenAI from "openai";
+import { Groq } from "groq-sdk";
 
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
-if (!OPENAI_API_KEY) {
+if (!GROQ_API_KEY) {
   console.warn(
-    "⚠️  OPENAI_API_KEY not configured. Article generation will not work."
+    "⚠️  GROQ_API_KEY not configured. Article generation will not work."
   );
 }
 
-let client: OpenAI | null = null;
+let client: Groq | null = null;
 
-function getOpenAIClient(): OpenAI {
-  if (!OPENAI_API_KEY) {
-    throw new Error("OPENAI_API_KEY not configured");
+function getGroqClient(): Groq {
+  if (!GROQ_API_KEY) {
+    throw new Error("GROQ_API_KEY not configured");
   }
 
   if (!client) {
-    client = new OpenAI({
-      apiKey: OPENAI_API_KEY,
+    client = new Groq({
+      apiKey: GROQ_API_KEY,
     });
   }
 
@@ -33,7 +33,7 @@ interface GenerateArticleRequest {
 export async function generateArticle(
   request: GenerateArticleRequest = {}
 ): Promise<string> {
-  const openAIClient = getOpenAIClient();
+  const groqClient = getGroqClient();
 
   const {
     topic = "technology",
@@ -43,8 +43,8 @@ export async function generateArticle(
 
   const userPrompt = `Write an article with ${paragraphs} paragraphs about ${topic}, ${style} style.`;
 
-  const completion = await openAIClient.chat.completions.create({
-    model: "gpt-4o-mini",
+  const completion = await groqClient.chat.completions.create({
+    model: "llama-3.3-70b-versatile",
     messages: [
       {
         role: "system",
