@@ -1,0 +1,15 @@
+node_modules
+dist
+.git
+.gitignore
+.env
+.env.docker
+*.md
+.vscode
+.idea
+*.log
+.pnp.*
+.yarn/cache
+.yarn/unplugged
+.yarn/install-state.gz
+

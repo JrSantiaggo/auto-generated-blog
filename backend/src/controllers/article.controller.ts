@@ -10,31 +10,49 @@ const HTTP_STATUS = {
   INTERNAL_SERVER_ERROR: 500,
 } as const;
 
-export const getAllArticles = (_req: Request, res: Response): void => {
-  const articles = articleService.findAll();
-  res.status(HTTP_STATUS.OK).json(articles);
+export const getAllArticles = async (
+  _req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const articles = await articleService.findAll();
+    res.status(HTTP_STATUS.OK).json(articles);
+  } catch (error) {
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      error: error instanceof Error ? error.message : "Error fetching articles",
+    });
+  }
 };
 
-export const getArticleById = (req: Request, res: Response): void => {
-  const articleId = parseInt(req.params.id, 10);
+export const getArticleById = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const articleId = parseInt(req.params.id, 10);
 
-  if (isNaN(articleId)) {
-    res.status(HTTP_STATUS.NOT_FOUND).json({
-      error: "Invalid article ID",
+    if (isNaN(articleId)) {
+      res.status(HTTP_STATUS.NOT_FOUND).json({
+        error: "Invalid article ID",
+      });
+      return;
+    }
+
+    const article = await articleService.findById(articleId);
+
+    if (!article) {
+      res.status(HTTP_STATUS.NOT_FOUND).json({
+        error: "Article not found",
+      });
+      return;
+    }
+
+    res.status(HTTP_STATUS.OK).json(article);
+  } catch (error) {
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      error: error instanceof Error ? error.message : "Error fetching article",
     });
-    return;
   }
-
-  const article = articleService.findById(articleId);
-
-  if (!article) {
-    res.status(HTTP_STATUS.NOT_FOUND).json({
-      error: "Article not found",
-    });
-    return;
-  }
-
-  res.status(HTTP_STATUS.OK).json(article);
 };
 
 interface GenerateArticleRequestBody {
@@ -58,7 +76,7 @@ export const generateArticleController = async (
     });
 
     const articleTitle = title || `Article about ${topic || "technology"}`;
-    const newArticle = articleService.create(articleTitle, generatedContent);
+    const newArticle = await articleService.create(articleTitle, generatedContent);
 
     res.status(HTTP_STATUS.CREATED).json(newArticle);
   } catch (error) {

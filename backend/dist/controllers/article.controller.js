@@ -10,27 +10,41 @@ const HTTP_STATUS = {
     BAD_REQUEST: 400,
     INTERNAL_SERVER_ERROR: 500,
 };
-const getAllArticles = (_req, res) => {
-    const articles = article_service_1.articleService.findAll();
-    res.status(HTTP_STATUS.OK).json(articles);
+const getAllArticles = async (_req, res) => {
+    try {
+        const articles = await article_service_1.articleService.findAll();
+        res.status(HTTP_STATUS.OK).json(articles);
+    }
+    catch (error) {
+        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+            error: error instanceof Error ? error.message : "Error fetching articles",
+        });
+    }
 };
 exports.getAllArticles = getAllArticles;
-const getArticleById = (req, res) => {
-    const articleId = parseInt(req.params.id, 10);
-    if (isNaN(articleId)) {
-        res.status(HTTP_STATUS.NOT_FOUND).json({
-            error: "Invalid article ID",
-        });
-        return;
+const getArticleById = async (req, res) => {
+    try {
+        const articleId = parseInt(req.params.id, 10);
+        if (isNaN(articleId)) {
+            res.status(HTTP_STATUS.NOT_FOUND).json({
+                error: "Invalid article ID",
+            });
+            return;
+        }
+        const article = await article_service_1.articleService.findById(articleId);
+        if (!article) {
+            res.status(HTTP_STATUS.NOT_FOUND).json({
+                error: "Article not found",
+            });
+            return;
+        }
+        res.status(HTTP_STATUS.OK).json(article);
     }
-    const article = article_service_1.articleService.findById(articleId);
-    if (!article) {
-        res.status(HTTP_STATUS.NOT_FOUND).json({
-            error: "Article not found",
+    catch (error) {
+        res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+            error: error instanceof Error ? error.message : "Error fetching article",
         });
-        return;
     }
-    res.status(HTTP_STATUS.OK).json(article);
 };
 exports.getArticleById = getArticleById;
 const generateArticleController = async (req, res) => {
@@ -42,7 +56,7 @@ const generateArticleController = async (req, res) => {
             paragraphs,
         });
         const articleTitle = title || `Article about ${topic || "technology"}`;
-        const newArticle = article_service_1.articleService.create(articleTitle, generatedContent);
+        const newArticle = await article_service_1.articleService.create(articleTitle, generatedContent);
         res.status(HTTP_STATUS.CREATED).json(newArticle);
     }
     catch (error) {
