@@ -15,7 +15,8 @@ COPY . .
 RUN yarn build
 
 # Fase de servidor estático com Nginx
-FROM nginx:alpine
+ FROM public.ecr.aws/nginx/nginx:alpine
+
 
 # Copia os arquivos estáticos gerados pelo Vite
 COPY --from=build /app/dist /usr/share/nginx/html
