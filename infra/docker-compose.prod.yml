@@ -1,0 +1,44 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: blog-postgres
+    environment:
+      POSTGRES_DB: blog
+      POSTGRES_USER: blog_user
+      POSTGRES_PASSWORD: blog_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - blog-network
+    restart: always
+
+  backend:
+    image: 471112810421.dkr.ecr.us-east-1.amazonaws.com/auto-generate-blog-backend:latest
+    container_name: blog-backend
+    env_file:
+      - ../backend/.env.prod
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    networks:
+      - blog-network
+    restart: always
+
+  frontend:
+    image: 471112810421.dkr.ecr.us-east-1.amazonaws.com/auto-generate-blog-frontend:latest
+    container_name: blog-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - blog-network
+    restart: always
+
+volumes:
+  postgres_data:
+
+networks:
+  blog-network:
+    driver: bridge

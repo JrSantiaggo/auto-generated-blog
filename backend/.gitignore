@@ -13,3 +13,4 @@
 .pnp.*
 .env
 .env.docker
+.env.prod
