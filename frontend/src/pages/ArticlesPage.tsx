@@ -98,7 +98,9 @@ export function ArticlesPage() {
         {selectedArticleId === null ? (
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <h1 className="text-3xl font-bold text-gray-800">Blog</h1>
+              <h1 className="text-3xl font-bold text-gray-800">
+                Blog AI Generator
+              </h1>
               <button
                 onClick={handleGenerateArticle}
                 disabled={isGenerating || articlesLoading}
