@@ -99,7 +99,7 @@ export function ArticlesPage() {
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <h1 className="text-3xl font-bold text-gray-800">
-                Blog AI Generator
+                Blog AI Generator v1
               </h1>
               <button
                 onClick={handleGenerateArticle}
